@@ -1,11 +1,11 @@
 #!/usr/bin/python
-'''This program provides the functions to convert a typical JSON to the BulkAPI requirements, and vice versa '''
+'''This program provides the functions to convert a typical JSON
+to the BulkAPI requirements, and vice versa '''
+import utils.file_util as util
 import json
-import os.path as path
 import sys
 
 sys.path.append('../')
-import utils.file_util as util
 
 
 def convert_to_bulk_api(json_path, output_path=None):
