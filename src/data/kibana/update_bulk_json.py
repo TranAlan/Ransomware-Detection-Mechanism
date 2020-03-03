@@ -20,7 +20,8 @@ def argparser():
     parser.add_argument('-ioc', '--ioc_type', type=str.upper, dest='ioc', nargs=1,
                         choices=['MD5', 'SHA256', 'IP',
                                  'URL', 'DOMAIN', 'other'],
-                        metavar='', required=True, help='type of ioc (MD5|SHA256|IP|URL|DOMAIN|other)',
+                        metavar='', required=True,
+                        help='type of ioc (MD5|SHA256|IP|URL|DOMAIN|other)',
                         action='store')
     parser.add_argument('-url', '--url', dest='url', metavar='', required=True,
                         help='URL source of the malware (e.g. www.virusshare.com)', action='store')

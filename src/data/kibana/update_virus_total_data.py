@@ -1,14 +1,14 @@
 #!/usr/bin/python
 '''This python script will update the existing ioc list to add more values for Kibana.'''
 
-import utils.file_util as util
-import json_translator as translator
 import time
 import pathlib
 import json
 import sys
 import requests
 sys.path.append('../')
+import utils.file_util as util
+import json_translator as translator
 
 VT_API_PARAM = 'apikey'
 VT_HASH_PARAM = 'hash'
@@ -216,9 +216,9 @@ def main():
     hash_list, ip_list, domain_list = get_values()
     print("Populating domain information")
     updated_domain = populate_domain(
-        domain_list, CONFIG['vt_domain'], CONFIG['api_limit'])
+        domain_list, CONFIG['vt_domain'])
     print("Populating ip information")
-    updated_ip = populate_ip(ip_list, CONFIG['vt_ip'], CONFIG['api_limit'])
+    updated_ip = populate_ip(ip_list, CONFIG['vt_ip'])
     print("Populating hash information (this may take a while)")
     updated_hash = populate_hash(
         hash_list, CONFIG['vt_report'], CONFIG['api_limit'])
