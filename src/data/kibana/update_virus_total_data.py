@@ -1,6 +1,8 @@
 #!/usr/bin/python
 '''This python script will update the existing ioc list to add more values for Kibana.'''
 
+
+
 import time
 import pathlib
 import json
@@ -9,7 +11,6 @@ import requests
 sys.path.append('../')
 import utils.file_util as util
 import json_translator as translator
-
 VT_API_PARAM = 'apikey'
 VT_HASH_PARAM = 'hash'
 API_ENV_VAR = 'RDM_API_KEY'
@@ -93,10 +94,9 @@ def populate_hash(hash_list, vt_url, api_limit):
                             2) if (positives and total) else None
 
             # Updating dictionaries with new values
-            hash_list[num].update({'total': total})
-            hash_list[num].update({'positives': positives})
-            hash_list[num].update({'percent_score': percent})
-            hash_list[num].update({'scan_date': scan_date})
+            hash_list[num].update(
+                {'total': total, 'positives': positives,
+                 'percent_score': percent, 'scan_date': scan_date})
         else:
             # Update existing hashes
             for index in enumerate(response):
@@ -107,10 +107,8 @@ def populate_hash(hash_list, vt_url, api_limit):
                                 2) if (positives and total) else None
 
                 # Updating dictionaries with new values
-                hash_list[num+index].update({'total': total})
-                hash_list[num+index].update({'positives': positives})
-                hash_list[num+index].update({'percent_score': percent})
-                hash_list[num+index].update({'scan_date': scan_date})
+                hash_list[num+index].update({'total': total, 'positives': positives,
+                                             'percent_score': percent, 'scan_date': scan_date})
 
             # Writing to JSON at every iteration incase it breaks
         util.write_json(
@@ -151,14 +149,10 @@ def populate_ip(ip_list, vt_url):
             total_detected_urls = 0
 
         # Updating dictionaries with new values
-        value.update({'is_valid': is_valid})
-        value.update({'country': country})
-        value.update({'continent': continent})
-        value.update({'total_detected_urls': total_detected_urls})
-        value.update({'total': total})
-        value.update({'positives': positives})
-        value.update({'percent_score': percent})
-        value.update({'scan_date': scan_date})
+        value.update({'is_valid': is_valid, 'country': country, 'continent': continent,
+                      'total_detected_urls': total_detected_urls, 'total': total,
+                      'positives': positives, 'percent_score': percent,
+                      'scan_date': scan_date})
 
         # Writing to JSON at every iteration incase it breaks
         util.write_json(
@@ -191,18 +185,12 @@ def populate_domain(domain_list, vt_url):
             percent = round((positives/total)*100, 2)
 
             # Updating dictionaries with new values
-            domain.update({'is_valid': is_valid})
-            domain.update({'total_detected_urls': total_detected_urls})
-            domain.update({'total': total})
-            domain.update({'positives': positives})
-            domain.update({'percent_score': percent})
-            domain.update({'scan_date': latest_scan_date})
+            domain.update({'is_valid': is_valid, 'total_detected_urls': total_detected_urls,
+                           'total': total, 'positives': positives, 'percent_score': percent,
+                           'scan_date': latest_scan_date})
         else:
-            domain.update({'is_valid': is_valid})
-            domain.update({'total': None})
-            domain.update({'positives': None})
-            domain.update({'percent_score': None})
-            domain.update({'scan_date': None})
+            domain.update({'is_valid': is_valid, 'total': None,
+                           'positives': None, 'percent_score': None, 'scan_date': None})
 
         # Writing to JSON at every iteration incase it breaks
         util.write_json(
