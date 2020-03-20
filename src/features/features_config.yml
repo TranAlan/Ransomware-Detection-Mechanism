@@ -1,0 +1,4 @@
+preprocessed_path: ../../data/preprocessed/preprocessed.csv
+processed_path: ../../data/processed/processed.csv
+sample_processed_path: ../../data/processed/sample_processed.csv
+sample_size: 50

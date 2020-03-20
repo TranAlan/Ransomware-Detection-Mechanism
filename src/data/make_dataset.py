@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 '''
-    This is the main file to making the dataset.q
+    This is the main file to making the dataset.
     This will download data, create the raw data and preprocces it.
 '''
 import logging
