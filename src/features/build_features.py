@@ -9,6 +9,7 @@ from os.path import dirname
 
 import math
 import sys
+import time
 import numpy as np
 import pandas as pd
 
@@ -44,6 +45,7 @@ def main():
         A sample containing the first 50 rows will be saved.
         A new CSV with raw + discretized + engineered will be saved.
     """
+    start = time.time()
     config = load_yaml(CONFIG_PATH)
     preprocessed_path = config['preprocessed_path']
     processed_output_path = config['processed_path']
@@ -55,7 +57,7 @@ def main():
     pd_roll_time_size = config['pd_roll_time_size']
     feature_df = pd.read_csv(preprocessed_path)
     feature_df['StartTime'] = pd.to_datetime(feature_df['StartTime'])
-    feature_df.sort_values('StartTime', ignore_index=True, inplace=True)
+    feature_df = feature_df.sort_values('StartTime').reset_index(drop=True)
     feature_df['epoch'] = ((feature_df['StartTime'] - pd.Timestamp('1970-01-01'))
                            // pd.Timedelta('1ms')) / 1000
     #Roughly 191 extra columns should be added
@@ -82,25 +84,23 @@ def main():
     build_gen_features(feature_df, 'TotPkts', pd_roll_time_size)
     build_gen_features(feature_df, 'SrcBytes', pd_roll_time_size)
 
-    print(f'Building TotBytes, TotPkts, SrcBytes with {minutes_window_size} minutes on DstAddr')
-    build_addr_features(feature_df, 'DstAddr', 'TotBytes', pd_roll_time_size)
-    build_addr_features(feature_df, 'DstAddr', 'TotPkts', pd_roll_time_size)
-    build_addr_features(feature_df, 'DstAddr', 'SrcBytes', pd_roll_time_size)
-
-    print(f'Building TotBytes, TotPkts, SrcBytes with {num_window_size} elements on DstAddr')
-    build_addr_features(feature_df, 'DstAddr', 'TotBytes', num_window_size)
-    build_addr_features(feature_df, 'DstAddr', 'TotPkts', num_window_size)
-    build_addr_features(feature_df, 'DstAddr', 'SrcBytes', num_window_size)
-
     print(f'Building TotBytes, TotPkts, SrcBytes with {minutes_window_size} minutes on SrcAddr')
     build_addr_features(feature_df, 'SrcAddr', 'TotBytes', pd_roll_time_size)
     build_addr_features(feature_df, 'SrcAddr', 'TotPkts', pd_roll_time_size)
     build_addr_features(feature_df, 'SrcAddr', 'SrcBytes', pd_roll_time_size)
 
-    print(f'Building TotBytes, TotPkts, SrcBytes with {num_window_size} elements on SrcAddr')
+    print(f'Building TotBytes, TotPkts, SrcBytes with {minutes_window_size} minutes on DstAddr')
+    build_addr_features(feature_df, 'DstAddr', 'TotBytes', pd_roll_time_size)
+    build_addr_features(feature_df, 'DstAddr', 'TotPkts', pd_roll_time_size)
+    build_addr_features(feature_df, 'DstAddr', 'SrcBytes', pd_roll_time_size)
+
+    print(f'Building TotBytes, TotPkts, SrcBytes with {num_window_size} elements on Src and Dst')
     build_addr_features(feature_df, 'SrcAddr', 'TotBytes', num_window_size)
     build_addr_features(feature_df, 'SrcAddr', 'TotPkts', num_window_size)
     build_addr_features(feature_df, 'SrcAddr', 'SrcBytes', num_window_size)
+    build_addr_features(feature_df, 'DstAddr', 'TotBytes', num_window_size)
+    build_addr_features(feature_df, 'DstAddr', 'TotPkts', num_window_size)
+    build_addr_features(feature_df, 'DstAddr', 'SrcBytes', num_window_size)
 
     #Write Sample to CSV
     makedirs(dirname(processed_output_path), exist_ok=True)
@@ -108,6 +108,7 @@ def main():
     feature_df.head(sample_size).to_csv(sample_output_path, index=False)
     #Write Raw and Features to CSV file.
     feature_df.to_csv(processed_output_path, index=False)
+    print(time.time() - start)
 
 def addr_prefix(addr):
     '''
@@ -204,21 +205,23 @@ def build_addr_features(f_df, addr, col, window):
     _build_addr_features(f_df, addr, col, window, 1)
     _build_addr_features(f_df, addr, col, window, 0)
 
-def _build_addr_features(f_df, addr, col, window, is_fwd):
+def _build_addr_features(f_df, addr, col, window, is_fwd): # pylint: disable=R0914
     '''
         Helper to build_addr_features
     '''
+    prefix = addr_prefix(addr)
+    suffix = roll_suffix(window)
     is_fwd_infix = dir_infix(is_fwd)
 
     data_f = f_df[['StartTime', addr, col, 'is_fwd']].copy()
     #Make null values not in the given direction
     data_f.loc[data_f.is_fwd != is_fwd, col] = np.NaN
 
-    sum_name = f'{addr_prefix(addr)}{col}Sum{is_fwd_infix}_{window}{roll_suffix(window)}'
-    min_name = f'{addr_prefix(addr)}{col}Min{is_fwd_infix}_{window}{roll_suffix(window)}'
-    max_name = f'{addr_prefix(addr)}{col}Max{is_fwd_infix}_{window}{roll_suffix(window)}'
-    mean_name = f'{addr_prefix(addr)}{col}Mean{is_fwd_infix}_{window}{roll_suffix(window)}'
-    std_name = f'{addr_prefix(addr)}{col}Std{is_fwd_infix}_{window}{roll_suffix(window)}'
+    sum_name = f'{prefix}{col}Sum{is_fwd_infix}_{window}{suffix}'
+    min_name = f'{prefix}{col}Min{is_fwd_infix}_{window}{suffix}'
+    max_name = f'{prefix}{col}Max{is_fwd_infix}_{window}{suffix}'
+    mean_name = f'{prefix}{col}Mean{is_fwd_infix}_{window}{suffix}'
+    std_name = f'{prefix}{col}Std{is_fwd_infix}_{window}{suffix}'
 
     f_df[sum_name] = np.NaN
     f_df[min_name] = np.NaN
@@ -228,31 +231,42 @@ def _build_addr_features(f_df, addr, col, window, is_fwd):
 
     #Make the addr columns
     all_addrs = data_f[addr].unique().tolist()
-    for item in all_addrs:
-        data_f[item] = np.NaN
-        data_f.loc[data_f[addr] == item, item] = data_f[col]
+    split_addr_list = list(split_list_chunks(all_addrs, 100))
+    for chunk in split_addr_list:
+        addr_df = data_f.copy()
+        for ip_v4 in chunk:
+            addr_df[ip_v4] = np.NaN
+            addr_df.loc[addr_df[addr] == ip_v4, ip_v4] = addr_df[col]
 
-        roll_obj = create_rolling_obj(data_f, ['StartTime', item], window)
+        roll_obj = create_rolling_obj(addr_df, ['StartTime'] + chunk, window)
+        del addr_df
         #Sum
-        data_f[item] = roll_obj.sum()[item]
-        f_df.loc[f_df[addr] == item, sum_name] = data_f.loc[data_f[addr] == item][item]
-
+        rolled_df = roll_obj.sum()
+        rolled_df[addr] = data_f[addr]
+        for ip_v4 in chunk:
+            f_df.loc[f_df[addr] == ip_v4, sum_name] = rolled_df.loc[rolled_df[addr] == ip_v4][ip_v4]
         #Min
-        data_f[item] = roll_obj.min()[item]
-        f_df.loc[f_df[addr] == item, min_name] = data_f.loc[data_f[addr] == item][item]
-
+        rolled_df = roll_obj.min()
+        rolled_df[addr] = data_f[addr]
+        for ip_v4 in chunk:
+            f_df.loc[f_df[addr] == ip_v4, min_name] = rolled_df.loc[rolled_df[addr] == ip_v4][ip_v4]
         #Max
-        data_f[item] = roll_obj.max()[item]
-        f_df.loc[f_df[addr] == item, max_name] = data_f.loc[data_f[addr] == item][item]
-
+        rolled_df = roll_obj.max()
+        rolled_df[addr] = data_f[addr]
+        for ip_v4 in chunk:
+            f_df.loc[f_df[addr] == ip_v4, max_name] = rolled_df.loc[rolled_df[addr] == ip_v4][ip_v4]
         #Mean
-        data_f[item] = roll_obj.mean()[item]
-        f_df.loc[f_df[addr] == item, mean_name] = data_f.loc[data_f[addr] == item][item]
-
+        rolled_df = roll_obj.mean()
+        rolled_df[addr] = data_f[addr]
+        for ip_4 in chunk:
+            f_df.loc[f_df[addr] == ip_4, mean_name] = rolled_df.loc[rolled_df[addr] == ip_4][ip_4]
         #Std
-        data_f[item] = roll_obj.std(ddof=0)[item]
-        f_df.loc[f_df[addr] == item, std_name] = data_f.loc[data_f[addr] == item][item]
-        data_f.drop(columns=[item], inplace=True, axis=1)
+        rolled_df = roll_obj.std(ddof=0)
+        rolled_df[addr] = data_f[addr]
+        for ip_v4 in chunk:
+            f_df.loc[f_df[addr] == ip_v4, std_name] = rolled_df.loc[rolled_df[addr] == ip_v4][ip_v4]
+        del roll_obj
+        del rolled_df
 
     f_df[sum_name] = f_df[sum_name].fillna(0)
     f_df[min_name] = f_df[min_name].fillna(0)
@@ -286,13 +300,20 @@ def _build_addr_total_flows(f_df, addr, window, is_fwd):
     f_df[col_name] = np.NaN
 
     all_addrs = data_f[addr].unique().tolist()
-    for item in all_addrs:
-        data_f[item] = np.NaN
-        data_f.loc[data_f[addr] == item, item] = data_f.is_fwd
-
-        data_f[item] = create_rolling_obj(data_f, ['StartTime', item], window).sum()[item]
-        f_df.loc[f_df[addr] == item, col_name] = data_f.loc[data_f[addr] == item][item]
-        data_f.drop(columns=[item], inplace=True, axis=1)
+    split_addr_list = list(split_list_chunks(all_addrs, 100))
+    for chunk in split_addr_list:
+        addr_df = data_f.copy()
+        for ip_v4 in chunk:
+            addr_df[ip_v4] = np.NaN
+            addr_df.loc[addr_df[addr] == ip_v4, ip_v4] = addr_df.is_fwd
+        roll_obj = create_rolling_obj(addr_df, ['StartTime'] + chunk, window)
+        del addr_df
+        rolled_df = roll_obj.sum()
+        rolled_df[addr] = data_f[addr]
+        for ip_4 in chunk:
+            f_df.loc[f_df[addr] == ip_4, col_name] = rolled_df.loc[rolled_df[addr] == ip_4][ip_4]
+        del roll_obj
+        del rolled_df
     f_df[col_name] = f_df[col_name].fillna(0)
     f_df[col_name] = f_df[col_name].astype('int64')
 
