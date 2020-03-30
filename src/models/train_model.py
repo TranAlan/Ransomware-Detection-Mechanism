@@ -86,7 +86,9 @@ def main():
         sample_size = len(X_train)
     X_train_sample = X_train.sample(100, random_state=7)
     y_train_sample = X_train_sample.Label
+    start_time = time.time()
     oc_params = tune_oneclass(df_train_subset(X_train_sample), y_train_sample, 'f1')
+    print(f'Time (param search) {sample_size} size. 3 Folds. 18 tot Fits: {time.time()-start_time}')
     oc_kernel = oc_params['kernel']
     oc_nu = oc_params['nu']
     oc_gamma = oc_params['gamma']
@@ -104,13 +106,15 @@ def main():
     oc_scaler = oc_trained['scaler']
     oc_predict_train = oc_trained['predict_train']
     oc_predict_test = oc_trained['predict_test']
-
+    start_time = time.time()
     #Get confidence scores
     data_f = pd.concat([X_train, X_test])
     data_f.sort_values('StartTime', inplace=True)
     oc_conf_score = oc_clf.decision_function(oc_scaler.transform(df_train_subset(data_f)))
+    print(f'Time Confidence Scores: {time.time() - start_time}')
     del data_f
     #Saving to CSV
+    start_time = time.time()
     x_test_label = X_test['Label']
     X_test.drop(columns=['Label'], inplace=True, axis=1)
     X_test['Label'] = x_test_label
@@ -127,6 +131,10 @@ def main():
     final_df['Confidence Score'] = oc_conf_score
     makedirs(dirname(f'{trained_path}'), exist_ok=True)
     final_df.to_csv(f'{trained_path}{oc_model_name}_trained.csv', index=False)
+    print(f'Saving one_class_featuers csv: {time.time() - start_time}')
+    start_time = time.time()
+    # Train Logistic Regression
+
 
 def get_confusion_matrix(true_label, predict_results):
     '''Returns the confusion matrix.
@@ -256,7 +264,7 @@ def tune_oneclass(X, y, score):
     #                          'gamma': expon(scale=.1),
     #                          'nu': expon(scale=0.1)}]
     tuned_parameters = [{'kernel': ['rbf'],
-                         'gamma': [1e-6, 1e-5, 1e-4, 1e-3],
+                         'gamma': [1e-6, 1e-5, 1e-4],
                          'nu': [1e-3, 1e-2, 0.1]}]
     return hyper_tuning(OneClassSVM(), tuned_parameters, X, y, score)
 
@@ -269,7 +277,9 @@ def model_train(clf, X_train, X_test, y_train, y_test, model_name, model_path, m
     Creates CSV with Predicted Labels and Confidence Score.
     '''
     scaler = preprocessing.StandardScaler()
+    start_time = time.time()
     modeling_dict = fit_predict_model(clf, df_train_subset(X_train), y_train, scaler)
+    print(f'Time Fiting and Predicting train data: {time.time() - start_time}')
     clf = modeling_dict['model']
     save_model(clf, model_path, model_name)
     self_predict_r = modeling_dict['self_predict']
@@ -296,7 +306,7 @@ def model_train(clf, X_train, X_test, y_train, y_test, model_name, model_path, m
     with open(f'{metric_path}{model_name}_train_matrix.txt', 'w') as outfile: 
         outfile.write(df_confusion_train.to_string())
     with open(f'{metric_path}{model_name}_train_matrix_norm.txt', 'w') as outfile: 
-        outfile.write(df_confusion_train_norm.to_string()) 
+        outfile.write(df_confusion_train_norm.to_string())
 
     #Save Metrics
     makedirs(dirname(metric_path), exist_ok=True)
@@ -305,7 +315,9 @@ def model_train(clf, X_train, X_test, y_train, y_test, model_name, model_path, m
     testing_results = None
 
     if X_test is not None and y_test is not None:
+        start_time = time.time()
         testing_results = clf.predict(scaler.transform(df_train_subset(X_test)))
+        print(f'Time testing with testing data: {time.time() - start_time}')
         test_performance = model_performance_metrics(y_test, testing_results)
         print(test_performance)
         with open(f'{metric_path}{model_name}_test_metric.json', 'w') as outfile:
