@@ -69,8 +69,8 @@ def main():
     build_gen_total_flows(feature_df, pd_roll_time_size)
 
     print(f'Building Total Flow in on SrcAddr and DstAddr in minutes and num elements')
-    build_addr_total_flows(feature_df, 'SrcAddr', minutes_window_size)
-    build_addr_total_flows(feature_df, 'DstAddr', minutes_window_size)
+    build_addr_total_flows(feature_df, 'SrcAddr', pd_roll_time_size)
+    build_addr_total_flows(feature_df, 'DstAddr', pd_roll_time_size)
     build_addr_total_flows(feature_df, 'SrcAddr', num_window_size)
     build_addr_total_flows(feature_df, 'DstAddr', num_window_size)
 
@@ -194,7 +194,7 @@ def create_rolling_obj(f_df, roll_cols, window):
         Creates a pandas rolling object given window and columns on dataframe.
         Min periods is automatically set to 0.
     '''
-    return f_df[roll_cols].rolling(window, min_periods=0, on='StartTime')
+    return f_df[roll_cols].rolling(window, min_periods=1, on='StartTime')
 
 def build_addr_features(f_df, addr, col, window):
     '''
