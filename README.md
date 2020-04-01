@@ -22,6 +22,7 @@ Project Organization
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   ├── external       <- Data from third party sources.
+    │   │    └── binetflow <- Output of downloaded binary netflow files
     │   ├── interim        <- Intermediate data that has been transformed.
     │   ├── preprocessed   <- Clean data set.
     │   ├── processed      <- The final, canonical data sets for modeling.
@@ -50,15 +51,12 @@ Project Organization
         ├── __init__.py    <- Makes src a Python module
         │
         ├── data           <- Scripts to download or generate data
-        │   │
-        │   ├── output
-        │   │    └── binetflow <- Output of downloaded binary netflow files
         │   └── make_dataset.py
         │
         ├── features       <- Scripts to turn raw data into features for modeling
         │   └── build_features.py
         │
-        ├── kibana <- Scripts to collect iocs for kibana.
+        ├── kibana         <- Scripts to collect iocs for kibana.
         │
         ├── models         <- Scripts to train models and then use trained models to make
         │   │                 predictions
