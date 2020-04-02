@@ -1,4 +1,3 @@
-
 binet_output_path: ../../data/external/binetflow
 dataset_path: ./inputs/dataset_url_list.json
 dir_dict_path: ./inputs/dir_mapping.json

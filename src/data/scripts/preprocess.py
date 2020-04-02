@@ -54,7 +54,7 @@ def make_preprocess():
     preprocessed_df['Sport_Int'] = preprocessed_df['Sport_Int'].astype('category')
 
     preprocessed_df['Dir_Int'] = preprocessed_df['Dir'].map(dir_dict)
-    preprocessed_df['Dir_Int'].fillna(dir_dict['Unknown'])
+    preprocessed_df['Dir_Int'] = preprocessed_df['Dir_Int'].fillna(dir_dict['Unknown'])
     preprocessed_df['Dir_Int'] = preprocessed_df['Dir_Int'].astype('category')
 
     preprocessed_df['Dport_Int'] = pd.cut(preprocessed_df['Dport'], bins=port_bins,
@@ -62,7 +62,7 @@ def make_preprocess():
     preprocessed_df['Dport_Int'] = preprocessed_df['Dport_Int'].astype('category')
 
     preprocessed_df['State_Int'] = preprocessed_df['State'].map(state_dict)
-    preprocessed_df['State_Int'].fillna(state_dict['Unknown'])
+    preprocessed_df['State_Int'] = preprocessed_df['State_Int'].fillna(state_dict['Unknown'])
     preprocessed_df['State_Int'] = preprocessed_df['State_Int'].astype('category')
 
     preprocessed_df['is_fwd'] = preprocessed_df['Sport']

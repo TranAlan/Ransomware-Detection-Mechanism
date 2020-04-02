@@ -1,0 +1,114 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+'''
+    Predicts the OneClass and Logistic Regression models
+    with the Validation dataset.
+'''
+import sys
+import time
+import pickle
+import json
+
+import pandas as pd
+
+from sklearn import preprocessing
+from sklearn.metrics import accuracy_score, average_precision_score, precision_score
+from sklearn.metrics import recall_score, f1_score, confusion_matrix
+
+sys.path.append('../')
+from utils.file_util import load_yaml
+
+#Global
+CONFIG_PATH = './models_config.yml'
+
+def main():
+    '''main'''
+    config = load_yaml(CONFIG_PATH)
+    model_path = config['model_path']
+    validation_path = config['validation_path']
+    val_df = pd.read_csv(validation_path)
+    val_df['State_Int'] = val_df['State_Int'].fillna(0)
+    val_df['State_Int'] = val_df['State_Int'].astype('category')
+    val_df['Dir_Int'] = val_df['Dir_Int'].astype('category')
+    val_df['Dport_Int'] = val_df['Dport_Int'].astype('category')
+    val_df['Sport_Int'] = val_df['Sport_Int'].astype('category')
+    print('ONE CLASS')
+    with open(f'{model_path}oneclass.pickle', 'rb') as file:
+        oc_model = pickle.load(file)
+    oc_scaler = preprocessing.StandardScaler()
+    oc_scaler.fit(df_train_subset(val_df))
+    results = oc_model.predict(oc_scaler.transform(df_train_subset(val_df)))
+    df_confusion_train = pd.crosstab(val_df.Label,
+                                     results,
+                                     rownames=['Actual'],
+                                     colnames=['Predicted'],
+                                     margins=True)
+    df_confusion_train_norm = pd.crosstab(val_df.Label,
+                                          results,
+                                          rownames=['Actual'],
+                                          colnames=['Predicted'],
+                                          normalize='index')
+    print(model_performance_metrics(val_df.Label, results))
+    print(df_confusion_train)
+    print(df_confusion_train_norm)
+    print('LINEAR REGRESSION')
+    with open(f'{model_path}lr.pickle', 'rb') as file:
+        lr_model = pickle.load(file)
+    conf_score = oc_model.decision_function(oc_scaler.transform(df_train_subset(val_df)))
+    true_label = val_df['Label']
+    val_df.drop(columns=['Label'], inplace=True, axis=1)
+    val_df['Label'] = true_label
+    val_df['Predicted_Label'] = results
+    val_df['Confidence_Score'] = conf_score
+    lr_scaler = preprocessing.StandardScaler()
+    lr_scaler.fit(df_train_subset(val_df))
+    results = lr_model.predict(lr_scaler.transform(df_train_subset(val_df)))
+    df_confusion_train = pd.crosstab(val_df.Label,
+                                     results,
+                                     rownames=['Actual'],
+                                     colnames=['Predicted'],
+                                     margins=True)
+    df_confusion_train_norm = pd.crosstab(val_df.Label,
+                                          results,
+                                          rownames=['Actual'],
+                                          colnames=['Predicted'],
+                                          normalize='index')
+    print(model_performance_metrics(val_df.Label, results))
+    print(df_confusion_train)
+    print(df_confusion_train_norm)
+
+def df_train_subset(data_f):
+    '''
+    Returns a copy of the dataframe with columns removed that should
+    not be involved with training.
+    '''
+    col_exclude_training = ['StartTime', 'Dir', 'Proto', 'State', 'Label',
+                            'SrcAddr', 'Sport', 'DstAddr', 'Dport', 'sTos', 'dTos', 'is_fwd']
+    return data_f.drop(columns=col_exclude_training, axis=1)
+
+def model_performance_metrics(y_true, y_pred):
+    '''
+    Returns a dictionary for the metrics of a given test result.
+    '''
+    metric_results_dict = {}
+    metric_results_dict['accuracy'] = accuracy_score(y_true, y_pred)
+    metric_results_dict['recall'] = recall_score(y_true, y_pred, average='binary')
+    metric_results_dict['precision'] = precision_score(y_true, y_pred, average='binary')
+    metric_results_dict['f1'] = f1_score(y_true, y_pred, average='binary')
+    metric_results_dict['average_precision'] = average_precision_score(y_true, y_pred)
+    metric_results_dict['confusion_matrix'] = get_confusion_matrix(y_true, y_pred)
+    return metric_results_dict
+
+def get_confusion_matrix(true_label, predict_results):
+    '''Returns the confusion matrix.
+    Args:
+        true_label (arr): The true labels of the rows.
+        predict_results (arr): The results returned from prediction.
+    Returns:
+        confusion mattrix: Tuple of size 4 (tn, fp, fn, tp)
+    '''
+    #tn, fp, fn, tp = confusion_matrix(true_label, predict_results).ravel()
+    return confusion_matrix(true_label, predict_results).ravel().tolist()
+
+if __name__ == '__main__':
+    main()

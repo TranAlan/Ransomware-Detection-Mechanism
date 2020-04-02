@@ -90,6 +90,7 @@ def main():
     oc_model_name = 'oneclass'
     oc_scaler = preprocessing.StandardScaler()
     oc_scaler.fit(df_train_subset(X_train))
+    save_model(oc_scaler, model_path, 'oc_scaler')
 
     #Fit One Class
     start_time = time.time()
@@ -121,12 +122,12 @@ def main():
     x_test_label = X_test['Label']
     X_test.drop(columns=['Label'], inplace=True, axis=1)
     X_test['Label'] = x_test_label
-    X_test['Predicted Label'] = oc_predict_test
+    X_test['Predicted_Label'] = oc_predict_test
 
     mal_train_label = X_train['Label']
     X_train.drop(columns=['Label'], inplace=True, axis=1)
     X_train['Label'] = mal_train_label
-    X_train['Predicted Label'] = oc_predict_train
+    X_train['Predicted_Label'] = oc_predict_train
 
     final_df = pd.concat([X_train, X_test])
     del X_train, X_test, y_train, y_test
@@ -161,6 +162,8 @@ def main():
     lr_model_name = 'lr'
     lr_scaler = preprocessing.StandardScaler()
     lr_scaler.fit(df_train_subset(final_df))
+    #Save LR Scaler
+    save_model(lr_scaler, model_path, 'lr_scaler')
 
     #Fit Logistic Regression
     start_time = time.time()
