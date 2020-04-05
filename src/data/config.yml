@@ -1,15 +1,8 @@
 binet_output_path: ../../data/external/binetflow
 dataset_path: ./inputs/dataset_url_list.json
 dir_dict_path: ./inputs/dir_mapping.json
-elastic_search_url: localhost:9200
 interim_output_path: ../../data/interim/interim.csv
 preprocessed_output_path: ../../data/preprocessed/preprocessed.csv
 proto_dict_path: ./inputs/protocol_mapping.json
 raw_output_path: ../../data/raw/input.csv
 state_dict_path: ./inputs/state_mapping.json
-stratosphere_binetflow_url: mcfp.felk.cvut.cz/publicDatasets
-vt_report: "https://www.virustotal.com/vtapi/v2/file/report"
-vt_ip: "https://www.virustotal.com/vtapi/v2/ip-address/report"
-vt_domain: "https://www.virustotal.com/vtapi/v2/domain/report"
-api_key: [""]
-api_limit: 2

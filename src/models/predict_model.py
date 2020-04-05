@@ -4,6 +4,9 @@
     Predicts the OneClass and Logistic Regression models
     with the Validation dataset.
 '''
+from os import makedirs
+from os.path import dirname
+
 import sys
 import time
 import pickle
@@ -26,6 +29,7 @@ def main():
     config = load_yaml(CONFIG_PATH)
     model_path = config['model_path']
     validation_path = config['validation_path']
+    metric_path = config['metric_path']
     val_df = pd.read_csv(validation_path)
     val_df['State_Int'] = val_df['State_Int'].fillna(0)
     val_df['State_Int'] = val_df['State_Int'].astype('category')
@@ -38,19 +42,9 @@ def main():
     oc_scaler = preprocessing.StandardScaler()
     oc_scaler.fit(df_train_subset(val_df))
     results = oc_model.predict(oc_scaler.transform(df_train_subset(val_df)))
-    df_confusion_train = pd.crosstab(val_df.Label,
-                                     results,
-                                     rownames=['Actual'],
-                                     colnames=['Predicted'],
-                                     margins=True)
-    df_confusion_train_norm = pd.crosstab(val_df.Label,
-                                          results,
-                                          rownames=['Actual'],
-                                          colnames=['Predicted'],
-                                          normalize='index')
-    print(model_performance_metrics(val_df.Label, results))
-    print(df_confusion_train)
-    print(df_confusion_train_norm)
+    save_performance(val_df.Label, results, metric_path, 'oneclass', 'validate')
+    save_confuse_matrix(val_df.Label, results, metric_path, 'oneclass', 'validate')
+
     print('LINEAR REGRESSION')
     with open(f'{model_path}lr.pickle', 'rb') as file:
         lr_model = pickle.load(file)
@@ -63,19 +57,8 @@ def main():
     lr_scaler = preprocessing.StandardScaler()
     lr_scaler.fit(df_train_subset(val_df))
     results = lr_model.predict(lr_scaler.transform(df_train_subset(val_df)))
-    df_confusion_train = pd.crosstab(val_df.Label,
-                                     results,
-                                     rownames=['Actual'],
-                                     colnames=['Predicted'],
-                                     margins=True)
-    df_confusion_train_norm = pd.crosstab(val_df.Label,
-                                          results,
-                                          rownames=['Actual'],
-                                          colnames=['Predicted'],
-                                          normalize='index')
-    print(model_performance_metrics(val_df.Label, results))
-    print(df_confusion_train)
-    print(df_confusion_train_norm)
+    save_performance(val_df.Label, results, metric_path, 'lr', 'validate')
+    save_confuse_matrix(val_df.Label, results, metric_path, 'lr', 'validate')
 
 def df_train_subset(data_f):
     '''
@@ -109,6 +92,40 @@ def get_confusion_matrix(true_label, predict_results):
     '''
     #tn, fp, fn, tp = confusion_matrix(true_label, predict_results).ravel()
     return confusion_matrix(true_label, predict_results).ravel().tolist()
+
+def save_performance(y_true, y_pred, metric_path, model_name, f_type):
+    '''
+    Writes to JSON the performance metrics after predicting.
+    '''
+    train_performance = model_performance_metrics(y_true, y_pred)
+    #Save Metrics
+    makedirs(dirname(metric_path), exist_ok=True)
+    with open(f'{metric_path}{model_name}_{f_type}_metric.json', 'w') as outfile:
+        outfile.write(json.dumps(train_performance, indent=4))
+
+def save_confuse_matrix(y_true, y_pred, metric_path, model_name, conf_name):
+    '''
+    Prints and Saves confusion matrix
+    '''
+    df_confusion_train = pd.crosstab(y_true,
+                                     y_pred,
+                                     rownames=['Actual'],
+                                     colnames=['Predicted'],
+                                     margins=True)
+    df_confusion_train_norm = pd.crosstab(y_true,
+                                          y_pred,
+                                          rownames=['Actual'],
+                                          colnames=['Predicted'],
+                                          normalize='index')
+
+    print(df_confusion_train)
+    print()
+    print(df_confusion_train_norm)
+    print()
+    with open(f'{metric_path}{model_name}_{conf_name}_matrix.txt', 'w') as outfile:
+        outfile.write(df_confusion_train.to_string())
+    with open(f'{metric_path}{model_name}_{conf_name}_matrix_norm.txt', 'w') as outfile:
+        outfile.write(df_confusion_train_norm.to_string())
 
 if __name__ == '__main__':
     main()

@@ -150,7 +150,7 @@ def main():
     #                                                                 train_size=lr_train_size,
     #                                                                 stratify=final_df.Label)
     # del X_test_sample, y_train_s, y_test_s
-    # lr_params = tune_log_reg(df_train_subset(final_df), final_df.Label, 'roc_auc')
+    # lr_params = tune_log_reg(df_train_subset(final_df), final_df.Label, 'average_precision')
     # print(f'Time Hyper Tuning LR: {time.time() - start_time}')
     lr_params = {'tol': 0.0028769650047889657, 'C': 41.72278866525042}
     lr_clf = LogisticRegression(solver='saga',
@@ -220,7 +220,7 @@ def save_model(model, dir_path, model_name):
     '''
     Saves the model as a pickle
     '''
-    print('Saving Model')
+    print(f'Saving {model_name}')
     pickle.dump(model, open(f'{dir_path}{model_name}.pickle', 'wb'))
 
 def model_performance_metrics(y_true, y_pred):
@@ -254,7 +254,7 @@ def hyper_tuning(classifier, tuned_parameters, X, y, score, is_random):
         )
     else:
         clf = RandomizedSearchCV(
-            classifier, tuned_parameters, scoring=score, n_jobs=5, cv=3, verbose=25, n_iter=10
+            classifier, tuned_parameters, scoring=score, n_jobs=5, cv=3, verbose=25, n_iter=7
         )
     scaler = preprocessing.StandardScaler().fit(X)
     clf.fit(scaler.transform(X), y)
