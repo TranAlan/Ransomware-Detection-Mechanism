@@ -31,11 +31,12 @@ def main():
     validation_path = config['validation_path']
     metric_path = config['metric_path']
     val_df = pd.read_csv(validation_path)
-    val_df['State_Int'] = val_df['State_Int'].fillna(0)
-    val_df['State_Int'] = val_df['State_Int'].astype('category')
-    val_df['Dir_Int'] = val_df['Dir_Int'].astype('category')
-    val_df['Dport_Int'] = val_df['Dport_Int'].astype('category')
-    val_df['Sport_Int'] = val_df['Sport_Int'].astype('category')
+    val_df.State_Int = val_df.State_Int.astype('category')
+    val_df.Dir_Int = val_df.Dir_Int.astype('category')
+    val_df.Dport_Int = val_df.Dport_Int.astype('category')
+    val_df.Sport_Int = val_df.Sport_Int.astype('category')
+    val_df.loc[val_df.Label == 0, 'Label'] = -1
+
     print('ONE CLASS')
     with open(f'{model_path}oneclass.pickle', 'rb') as file:
         oc_model = pickle.load(file)
@@ -49,7 +50,7 @@ def main():
     with open(f'{model_path}lr.pickle', 'rb') as file:
         lr_model = pickle.load(file)
     conf_score = oc_model.decision_function(oc_scaler.transform(df_train_subset(val_df)))
-    true_label = val_df['Label']
+    true_label = val_df.Label
     val_df.drop(columns=['Label'], inplace=True, axis=1)
     val_df['Label'] = true_label
     val_df['Predicted_Label'] = results

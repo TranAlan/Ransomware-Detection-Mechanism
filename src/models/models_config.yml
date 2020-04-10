@@ -2,4 +2,4 @@ metric_path: ../../metric/
 model_path: ../../models/
 processed_path: ../../data/processed/processed.csv
 trained_path: ../../data/trained/
-validation_path: ../../data/validation/validation.csv
+validation_path: ../../data/processed/val_processed.csv

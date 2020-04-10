@@ -137,14 +137,19 @@ For information on how to set up the RDM Kibana Environment with the IOCS, see t
 Follow these instructions to train or test models.
 
 ### Pipeline
-    ├── 1. Preparing Data (1.3 mil rows)              <- /src/data> python make_dataset.py
-    │      ├── 1. Download data sets        (8.5 min)
-    │      ├── 2. Create raw data           (8.5 sec)
-    │      ├── 3. Create interim data       (8 sec)
-    │      └── 4. Create preprocessed data  (30 sec)
-    ├── 2. Build Features (1.3 mil rows) (2.28 hours) <- /src/features> python build_features.py
-    ├── 3. Train Model                                <- /src/models> python train_model.py
-    └── 4. Predict Model                              <- /src/models> python predict_model.py
+    ├── 1. Preparing Data (1.3 mil rows)                  <- /src/data> python make_dataset.py
+    │      ├── 1. Download data sets        (8.5  min)
+    │      ├── 2. Create raw data           (8.5  sec)
+    │      ├── 3. Create interim data       (8    sec)
+    │      └── 4. Create preprocessed data  (30   sec)
+    ├── 2. Build Features (1.3 mil rows)    (2.28 hours)   <- /src/features> python build_features.py
+    ├── 3. Train Model    (1.3 mil rows)    (6.3  hours)   <- /src/models> python train_model.py
+    │      ├── One Class SVM                (5    hours)
+    │      ├── Confidence SCore             (37   min)
+    │      ├── Save OC Features CSV         (4.3  min)
+    │      ├── Linear Regression            (21.7 min)
+    │      └── Save LR Features CSV         (4.8  min)
+    └── 4. Predict Model                                   <- /src/models> python predict_model.py
 
 ## More Information
 Visit the [Github Wiki](https://github.com/TranAlan/Ransomware-Detection-Mechanism/wiki) for more documentation and research on the project.

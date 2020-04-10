@@ -24,21 +24,11 @@
         "value": "bb9e0b23fc6cba27ba670547b7890273"
     },
     {   
-        "source": "https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-272-3/capture_win17.binetflow",
-        "malware": "emotet",
-        "type": "MD5",
-        "infected_host": [
-            ["192.168.1.2"]
-        ],
-        "infected_gw": "192.168.1.127",
-        "value": "8a5d3cada819fe7fd9db67d8c0af120e"
-    },
-    {   
         "source": "https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-327-2/2018-03-27_win3.binetflow",
         "malware": "trickbot",
         "type": "MD5",
         "infected_host": [
-            ["192.168.113"]
+            "192.168.1.113"
         ],
         "infected_gw": "192.168.1.2",
         "value": "2b48789d9272700de5405bf9a9c05204"

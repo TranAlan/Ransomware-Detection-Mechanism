@@ -84,8 +84,8 @@ def main():
     # oc_params = tune_oneclass(df_train_subset(X_train_sample), y_train_sample, 'f1')
     # print(f'Time (param search) {sample_size} size. 3 Folds. 18 tot Fits: {time.time()-start_time}')
     oc_kernel = 'rbf'
-    oc_nu = 1e-3
-    oc_gamma = 1e-4
+    oc_nu = 0.15
+    oc_gamma = 1e-6
     oc_clf = OneClassSVM(kernel=oc_kernel, nu=oc_nu, gamma=oc_gamma, cache_size=7000, verbose=True)
     oc_model_name = 'oneclass'
     oc_scaler = preprocessing.StandardScaler()
@@ -152,7 +152,7 @@ def main():
     # del X_test_sample, y_train_s, y_test_s
     # lr_params = tune_log_reg(df_train_subset(final_df), final_df.Label, 'average_precision')
     # print(f'Time Hyper Tuning LR: {time.time() - start_time}')
-    lr_params = {'tol': 0.0028769650047889657, 'C': 41.72278866525042}
+    lr_params = {'C': 69.54618247583652, 'tol': 0.0009555227427965779}
     lr_clf = LogisticRegression(solver='saga',
                                 penalty='l2',
                                 dual=False,
