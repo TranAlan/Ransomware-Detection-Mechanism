@@ -8,7 +8,6 @@ from os import makedirs
 from os.path import dirname
 
 import sys
-import time
 import pickle
 import json
 
