@@ -9,7 +9,7 @@ RUN pip3 install -r requirements.txt
 
 COPY data/processed/processed.csv data/processed/processed.csv
 COPY src/utils src/utils
-COPY src/models /src/models
+COPY src/models src/models
 
 WORKDIR src/models/
 

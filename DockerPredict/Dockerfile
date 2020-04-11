@@ -11,7 +11,7 @@ COPY models models
 COPY data/processed/processed.csv data/processed/processed.csv
 COPY data/processed/processed.csv data/processed/val_processed.csv
 COPY src/utils src/utils
-COPY src/models /src/models
+COPY src/models src/models
 
 WORKDIR src/models/
 
