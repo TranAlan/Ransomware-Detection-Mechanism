@@ -135,10 +135,7 @@ You are now ready to run scripts. Proceed to Kibana or Training for more informa
 ### Setting up RDM Kibana Environment
 For information on how to set up the RDM Kibana Environment with the IOCS, see the [Setting Up Kibana Environment](https://github.com/TranAlan/Ransomware-Detection-Mechanism/wiki/Setting-Up-Kibana-Environment) page.
 
-## Training
-Follow these instructions to train or test models.
-
-### Pipeline
+## Pipeline
     ├── 1. Preparing Data (1.3 mil rows)                  <- /src/data> python make_dataset.py
     │      ├── 1. Download data sets        (8.5  min)
     │      ├── 2. Create raw data           (8.5  sec)
@@ -152,6 +149,43 @@ Follow these instructions to train or test models.
     │      ├── Linear Regression            (22.2  min)
     │      └── Save LR Features CSV         (4.6   min)
     └── 4. Predict Model                    (24.7  min)     <- /src/models> python predict_model.py
+
+## Docker
+### Train
+```bash
+$ docker build -f DockerTrain/Dockerfile -t train_model:latest .
+$ docker run -d train_model:latest
+```
+
+### Predict
+```bash
+$ docker build -f DockerPredict/Dockerfile -t predict_model:latest .
+$ docker run -d predict_model:latest
+```
+### Interact with Container
+```bash
+$ docker ps -a
+$ docker exec -it (container id) bash
+```
+## Training and Predict Locally
+Follow these instructions to run train or predict off the bat.
+```bash
+$ cd project/src/models
+$ python train_model.py
+$ python predict_model.py
+```
+## Performing Pipeline Entirely
+Follow these instructions to train or test models from scratch.
+
+```bash
+$ cd project/src/data
+$ python make_dataset.py
+$ cd ../features
+$ python build_features.py
+$ cd ../models
+$ python train_model.py
+$ python predict_model.py
+```
 
 ## More Information
 Visit the [Github Wiki](https://github.com/TranAlan/Ransomware-Detection-Mechanism/wiki) for more documentation and research on the project.
