@@ -189,3 +189,6 @@ $ python predict_model.py
 
 ## More Information
 Visit the [Github Wiki](https://github.com/TranAlan/Ransomware-Detection-Mechanism/wiki) for more documentation and research on the project.
+
+### Using BulkAPI JSON Scripts
+For information on how to use BulkAPI JSON scripts, see the [How to Use Bulk JSON Scripts](https://github.com/TranAlan/Ransomware-Detection-Mechanism/wiki/How-to-Use-Bulk-JSON-Scripts) page.

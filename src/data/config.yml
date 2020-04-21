@@ -6,3 +6,4 @@ preprocessed_output_path: ../../data/preprocessed/preprocessed.csv
 proto_dict_path: ./inputs/protocol_mapping.json
 raw_output_path: ../../data/raw/input.csv
 state_dict_path: ./inputs/state_mapping.json
+stratosphere_binetflow_url: mcfp.felk.cvut.cz/publicDatasets
