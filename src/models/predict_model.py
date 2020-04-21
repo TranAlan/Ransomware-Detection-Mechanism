@@ -40,15 +40,17 @@ def main():
     val_df.loc[val_df.Label == 0, 'Label'] = -1
 
     print('ONE CLASS')
+    with open(f'{model_path}oc_scaler.pickle', 'rb') as file:
+        oc_scaler = pickle.load(file)
     with open(f'{model_path}oneclass.pickle', 'rb') as file:
         oc_model = pickle.load(file)
-    oc_scaler = preprocessing.StandardScaler()
-    oc_scaler.fit(df_train_subset(val_df))
     results = oc_model.predict(oc_scaler.transform(df_train_subset(val_df)))
     save_performance(val_df.Label, results, metric_path, 'oneclass', 'validate')
     save_confuse_matrix(val_df.Label, results, metric_path, 'oneclass', 'validate')
 
     print('LINEAR REGRESSION')
+    with open(f'{model_path}lr_scaler.pickle', 'rb') as file:
+        lr_scaler = pickle.load(file)
     with open(f'{model_path}lr.pickle', 'rb') as file:
         lr_model = pickle.load(file)
     conf_score = oc_model.decision_function(oc_scaler.transform(df_train_subset(val_df)))
@@ -57,8 +59,6 @@ def main():
     val_df['Label'] = true_label
     val_df['Predicted_Label'] = results
     val_df['Confidence_Score'] = conf_score
-    lr_scaler = preprocessing.StandardScaler()
-    lr_scaler.fit(df_train_subset(val_df))
     results = lr_model.predict(lr_scaler.transform(df_train_subset(val_df)))
     save_performance(val_df.Label, results, metric_path, 'lr', 'validate')
     save_confuse_matrix(val_df.Label, results, metric_path, 'lr', 'validate')

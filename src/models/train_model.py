@@ -84,7 +84,7 @@ def main():
     # oc_params = tune_oneclass(df_train_subset(X_train_sample), y_train_sample, 'f1')
     # print(f'Time (param search) {sample_size} size. 3 Folds. 18 tot Fits: {time.time()-start_time}')
     oc_kernel = 'rbf'
-    oc_nu = 0.15
+    oc_nu = 1e-2
     oc_gamma = 1e-6
     oc_clf = OneClassSVM(kernel=oc_kernel, nu=oc_nu, gamma=oc_gamma, cache_size=7000, verbose=True)
     oc_model_name = 'oneclass'

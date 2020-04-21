@@ -145,13 +145,13 @@ Follow these instructions to train or test models.
     │      ├── 3. Create interim data       (8    sec)
     │      └── 4. Create preprocessed data  (30   sec)
     ├── 2. Build Features (1.3 mil rows)    (2.28 hours)   <- /src/features> python build_features.py
-    ├── 3. Train Model    (1.3 mil rows)    (44.7  hours)   <- /src/models> python train_model.py
-    │      ├── One Class SVM                (33 hours)
-    │      ├── Confidence SCore             (8.72 hours)
-    │      ├── Save OC Features CSV         (5  min)
-    │      ├── Linear Regression            (21.5 min)
-    │      └── Save LR Features CSV         (4.5  min)
-    └── 4. Predict Model                                   <- /src/models> python predict_model.py
+    ├── 3. Train Model    (1.3 mil rows)    (6.38  hours)  <- /src/models> python train_model.py
+    │      ├── One Class SVM                (5.03  hours)
+    │      ├── Confidence SCore             (36.4  min)
+    │      ├── Save OC Features CSV         (4.4   min)
+    │      ├── Linear Regression            (22.2  min)
+    │      └── Save LR Features CSV         (4.6   min)
+    └── 4. Predict Model                    (24.7  min)     <- /src/models> python predict_model.py
 
 ## More Information
 Visit the [Github Wiki](https://github.com/TranAlan/Ransomware-Detection-Mechanism/wiki) for more documentation and research on the project.
