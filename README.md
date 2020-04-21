@@ -22,16 +22,18 @@ Project Organization
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   ├── external       <- Data from third party sources.
-    │   │    └── binetflow <- Output of downloaded binary netflow files
+    │   │    ├── binetflow <- Bidirectional netflow files for training set.
+    │   │    └── validation <- Bidirectional netflow files for validation.
     │   ├── interim        <- Intermediate data that has been transformed.
     │   ├── preprocessed   <- Clean data set.
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   ├── raw            <- The original, immutable data dump.
-    │   └── trained        <- The final data set after training and testing.
+    │   ├── trained        <- The final data set after training and testing.
+    │   └── validation     <- Results of validating model with validation data.
     │
     ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
     │
-    ├── metric             <- Generated files for training metrics
+    ├── metric             <- Generated files for training and validation metrics
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
     │
@@ -143,12 +145,12 @@ Follow these instructions to train or test models.
     │      ├── 3. Create interim data       (8    sec)
     │      └── 4. Create preprocessed data  (30   sec)
     ├── 2. Build Features (1.3 mil rows)    (2.28 hours)   <- /src/features> python build_features.py
-    ├── 3. Train Model    (1.3 mil rows)    (6.3  hours)   <- /src/models> python train_model.py
-    │      ├── One Class SVM                (5    hours)
-    │      ├── Confidence SCore             (37   min)
-    │      ├── Save OC Features CSV         (4.3  min)
-    │      ├── Linear Regression            (21.7 min)
-    │      └── Save LR Features CSV         (4.8  min)
+    ├── 3. Train Model    (1.3 mil rows)    (44.7  hours)   <- /src/models> python train_model.py
+    │      ├── One Class SVM                (33 hours)
+    │      ├── Confidence SCore             (8.72 hours)
+    │      ├── Save OC Features CSV         (5  min)
+    │      ├── Linear Regression            (21.5 min)
+    │      └── Save LR Features CSV         (4.5  min)
     └── 4. Predict Model                                   <- /src/models> python predict_model.py
 
 ## More Information

@@ -12,4 +12,3 @@ script:
   - pylint ./src/visualization/
   - pylint ./src/features/
   - pylint ./src/utils/
-  - ./travis_build.sh

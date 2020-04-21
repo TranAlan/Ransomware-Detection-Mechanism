@@ -10,6 +10,7 @@ from os.path import dirname
 import sys
 import pickle
 import json
+import time
 
 import pandas as pd
 
@@ -25,11 +26,13 @@ CONFIG_PATH = './models_config.yml'
 
 def main():
     '''main'''
+    start_time = time.time()
     config = load_yaml(CONFIG_PATH)
     model_path = config['model_path']
+    val_processed_path = config['val_processed_path']
     validation_path = config['validation_path']
     metric_path = config['metric_path']
-    val_df = pd.read_csv(validation_path)
+    val_df = pd.read_csv(val_processed_path)
     val_df.State_Int = val_df.State_Int.astype('category')
     val_df.Dir_Int = val_df.Dir_Int.astype('category')
     val_df.Dport_Int = val_df.Dport_Int.astype('category')
@@ -59,6 +62,17 @@ def main():
     results = lr_model.predict(lr_scaler.transform(df_train_subset(val_df)))
     save_performance(val_df.Label, results, metric_path, 'lr', 'validate')
     save_confuse_matrix(val_df.Label, results, metric_path, 'lr', 'validate')
+    print(f'Time To Predict: {time.time() - start_time}')
+    start_time = time.time()
+    ncs = lr_model.predict_proba(lr_scaler.transform(df_train_subset(val_df)))
+    lr_classes = lr_model.classes_
+    val_df[f'CS_LR_{lr_classes[0]}'] = [prob[0] for prob in ncs]
+    val_df[f'CS_LR_{lr_classes[1]}'] = [prob[1] for prob in ncs]
+    print(f'Normalize Results: {time.time() - start_time}')
+    start_time = time.time()
+    makedirs(dirname(validation_path), exist_ok=True)
+    val_df.to_csv(validation_path, index=False)
+    print(f'Saving CSV to Validation: {time.time() - start_time}')
 
 def df_train_subset(data_f):
     '''
